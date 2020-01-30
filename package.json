@@ -1,6 +1,6 @@
 {
   "name": "@seo-booster/jsonapi-query-parser",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Class to parse endpoint and its query parameters to a usable request object",
   "main": "src/JsonApiQueryParser.js",
   "scripts": {
