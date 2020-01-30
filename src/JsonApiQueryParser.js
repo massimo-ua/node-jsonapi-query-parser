@@ -10,7 +10,7 @@ const PARSE_PARAM = Object.freeze ({
   parseSort: /^sort\=(.*?)/i,
   parseFilter: /^filter\[([^\]]*?)\]\=.*?$/i,
   parseFilterType: /^filter\[([^or].*?)\]\[(.*?)\]\=(.*?)$/i,
-  parseFilterWithOr: /^filter\[or\]\[\d+\](\[[^or].*?\]\[.*?\]\=.*?|\[[^\]]*?\]\=.*?){1}$/i,
+  parseFilterWithOr: /^filter\[or\]\[(\d+)\](\[[^or].*?\]\[.*?\]\=.*?|\[[^\]]*?\]\=.*?){1}$/i,
 });
 
 class JsonApiQueryParser {
@@ -330,7 +330,8 @@ class JsonApiQueryParser {
   }
 
   static parseFilterWithOr (filterString, requestDataSubset) {
-    const targetFilterFragment = filterString.replace (PARSE_PARAM.parseFilterWithOr, (match, $1) => $1);
+    const index = parseInt(filterString.replace (PARSE_PARAM.parseFilterWithOr, (match, $1) => $1));
+    const targetFilterFragment = filterString.replace (PARSE_PARAM.parseFilterWithOr, (match, $1, $2) => $2);
     const subFilterString = `filter${targetFilterFragment}`;
     const subFilterInitialSet = {
       filter: {
@@ -345,7 +346,14 @@ class JsonApiQueryParser {
     const { filter } = PARSE_PARAM.parseFilter.test (subFilterString)
       ? JsonApiQueryParser.parseFilter(subFilterString, subFilterInitialSet)
       : JsonApiQueryParser.parseFilterType(subFilterString, subFilterInitialSet);
-    requestDataSubset.filter.or.push(filter);
+    if (typeof requestDataSubset.filter.or[index] === 'undefined') {
+      requestDataSubset.filter.or[index] = filter;  
+    } else {
+      requestDataSubset.filter.or[index] = JsonApiQueryParser.deepMerge(
+        requestDataSubset.filter.or[index],
+        filter,
+      );  
+    }
     return requestDataSubset;
   }
 
@@ -364,6 +372,23 @@ class JsonApiQueryParser {
     } else {
       return trimmed;
     }
+  }
+
+  static deepMerge(target = {}, source = {}) {
+    Object.keys(source).forEach(key => {
+        if (
+            typeof source[key] === 'object' &&
+            !Array.isArray(source[key])
+        ) {
+            if (!target.hasOwnProperty(key)) {
+                target[key] = {};
+            }
+            JsonApiQueryParser.deepMerge(target[key], source[key]);
+        } else {
+            target[key] = source[key];
+        }
+    });
+    return target;
   }
 }
 

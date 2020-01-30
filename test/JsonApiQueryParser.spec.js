@@ -226,7 +226,7 @@ describe ('JsonApiQueryParser', function () {
       testString =
         '&&include=user&page[offset]=200&sort=age,-id&fields[user]=name,email&&fields[article]=title,body&page[limit]=20' +
         '&filter[name]=test&filter[lastname]=another&filter[like][name]=boo' +
-        '&filter[or][0][name]=test&filter[or][1][gt][rate]=1&filter[or][2][like][name]=boo';
+        '&filter[or][0][name]=test&filter[or][0][gt][rate]=1&filter[or][1][like][name]=boo';
       testData = parserClass.parseQueryParameters (
         testString,
         requestDataSubset
@@ -246,15 +246,6 @@ describe ('JsonApiQueryParser', function () {
         filter: {
           or: [
             {
-              gt: {},
-              gte: {},
-              like: {},
-              lt: {},
-              lte: {},
-              name: 'test',
-              not: {},
-            },
-            {
               gt: {
                 rate: '1',
               },
@@ -262,6 +253,7 @@ describe ('JsonApiQueryParser', function () {
               like: {},
               lt: {},
               lte: {},
+              name: 'test',
               not: {},
             },
             {
