@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/kideh88/node-jsonapi-query-parser#readme",
   "devDependencies": {
-    "chai": "^3.4.1",
-    "mocha": "^2.3.4"
+    "chai": "^4.2.0",
+    "mocha": "^6.2.2"
   }
 }
